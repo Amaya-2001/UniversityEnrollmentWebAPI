@@ -30,6 +30,34 @@ namespace UniversityWebAPI.Controllers
 
             return CreatedAtAction("GetAllStudents", new { id = student.StudentId }, student);
         }
+
+        [HttpGet("details")]
+        public async Task<ActionResult<Student>> GetStudentDetails(int studentId)
+        {
+            return await _context.Students.FirstOrDefaultAsync(m => m.StudentId == studentId);
+        }
+
+        [HttpPut("edit")]
+        public async Task<ActionResult<Student>> EditStudent(string studentId, [FromBody] Student updatedStudent)
+        {
+            if(studentId == null)
+            {
+                return NotFound();
+
+            }
+            _context.Students.Update(updatedStudent);
+            await _context.SaveChangesAsync();
+            return Ok(updatedStudent);
+
+            
+        }
+        [HttpDelete("delete")]
+        public  async Task<ActionResult<Student>> DeleteStudent(int studentId)
+        {
+            var student =  _context.Students.Find(studentId);
+            var deleteStudent =  _context.Students.Remove(student);
+            return  Ok(deleteStudent);
+        }
     }
 
 }
