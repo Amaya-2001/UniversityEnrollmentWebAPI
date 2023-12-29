@@ -36,24 +36,46 @@ namespace UniversityWebAPI.Controllers
             return await _context.Courses.FirstOrDefaultAsync(c => c.CourseId == courseId);
         }
 
-        [HttpPut("edit")]
-        public async Task<ActionResult<Course>> EditStudent(string courseId, [FromBody] Course editCourse)
+        [HttpPut("edit/{courseId}")]
+        public async Task<ActionResult<Course>> EditCourse([FromRoute] int courseId, [FromBody] Course editCourse)
         {
-            if(courseId == null)
+            if (courseId <= 0)
             {
-                return BadRequest();
+                return BadRequest("Invalid courseId");
             }
-            _context.Courses.Update(editCourse);
-            await _context.SaveChangesAsync();
-            return Ok(editCourse);
-        }
-        [HttpDelete("delete")]
 
-        public async Task<ActionResult<Course>> DeleteCourse(int courseId)
+            
+            var existingCourse = await _context.Courses.FindAsync(courseId);
+
+            if (existingCourse == null)
+            {
+                return NotFound("Course not found");
+            }
+
+          
+            _context.Entry(existingCourse).CurrentValues.SetValues(editCourse);
+
+            
+            await _context.SaveChangesAsync();
+
+            return Ok(existingCourse);
+        }
+
+        [HttpDelete("delete/{courseId}")]
+        public async Task<ActionResult<Course>> DeleteCourse([FromRoute] int courseId)
         {
-            var course = _context.Courses.FirstOrDefault(c => c.CourseId == courseId); 
+            var course = _context.Courses.FirstOrDefault(c => c.CourseId == courseId);
+
+            if (course == null)
+            {
+                return NotFound("Course not found");
+            }
+
             _context.Courses.Remove(course);
+            await _context.SaveChangesAsync();
+
             return Ok(course);
         }
+
     }
 }

@@ -37,15 +37,23 @@ namespace UniversityWebAPI.Controllers
             return await _context.Students.FirstOrDefaultAsync(m => m.StudentId == studentId);
         }
 
-        [HttpPut("edit")]
-        public async Task<ActionResult<Student>> EditStudent(string studentId, [FromBody] Student updatedStudent)
+        [HttpPut("edit/{studentId}")]
+        public async Task<ActionResult<Student>> EditStudent(int studentId, [FromBody] Student updatedStudent)
         {
-            if(studentId == null)
+            if(studentId <= 0)
             {
                 return NotFound();
 
             }
-            _context.Students.Update(updatedStudent);
+
+            
+            var existingStudent = await _context.Students.FindAsync(studentId);
+            if (existingStudent == null)
+            {
+                return NotFound("Student not found");
+            }
+            _context.Entry(existingStudent).CurrentValues.SetValues(updatedStudent);
+            
             await _context.SaveChangesAsync();
             return Ok(updatedStudent);
 
