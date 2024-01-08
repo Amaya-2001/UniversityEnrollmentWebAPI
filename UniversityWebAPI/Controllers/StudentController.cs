@@ -17,7 +17,7 @@ namespace UniversityWebAPI.Controllers
 
         }
         [HttpGet("getAllStudents")]
-        public async Task<ActionResult<Student>> GetAllStudents(StudentController studentController)
+        public async Task<ActionResult<Student>> GetAllStudents()
         {
             return Ok(await _context.Students.ToListAsync());
         }
